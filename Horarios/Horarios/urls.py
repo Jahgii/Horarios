@@ -15,10 +15,23 @@ Including another URLconf
 """
 from django.conf.urls import url, include
 from django.contrib import admin
+from django.conf import settings
+from django.conf.urls.static import static
+
+from CrearHorario.views import HorarioListView, HorarioClaseDeleteView, HorarioMateriaCreateView
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
 
         ##### Api #####
     url(r'^api/horarios/', include ('CrearHorario.api.urls', namespace = 'horarios_api')),
-]
+
+        ##### View #####
+    url(r'^horario/$',  HorarioListView.as_view(),  name='horario_lista'),
+    url(r'^horario/(?P<pk>\d+)/delete/$', HorarioClaseDeleteView.as_view(), name='horario_delete'),
+    url(r'^horario/agregar/$', HorarioMateriaCreateView.as_view(), name='horario_agregar'),
+
+        ##### Accounts #####
+    url(r'^', include('django.contrib.auth.urls')),
+
+]+ static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

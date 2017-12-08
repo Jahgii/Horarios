@@ -1,0 +1,48 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="../../../../favicon.ico">
+
+    <title>Signin Template for Bootstrap</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="{% static 'static/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="{% static 'mycss/login.css' %}" rel="stylesheet">
+  </head>
+
+  <body>
+    <div class="container">
+      {% if form.errors %}
+      <p>Tu contraseña o usuario son incorrectos</p>
+      {% endif %}
+
+      {% if next %}
+          {% if user.is_authenticated %}
+          <p>Tu cuenta no tiene permisos para acceder a esta pagina. Por favor
+            inicie sesion con una cuenta de administrador</p>
+          {% else %}
+          <p>Por favor inicie sesion para ver esta pagina.</p>
+          {% endif %}
+      {% endif %}
+      <form class="form-signin" method="post" action="">
+        {% csrf_token %}
+        <h2 class="form-signin-heading">Ingrese sesión</h2>
+
+        <label for="inputUser" class="sr-only">Nombre de usuario</label>
+        <input type="text" name="username" class="form-control" placeholder="Usuario" required id="id_username" autofocus maxlength="8">
+
+        <label for="inputPassword" class="sr-only">Contraseña</label>
+        <input type="password" class="form-control" placeholder="Contraseña" name="password" required id="id_password">
+
+        <button class="btn btn-lg btn-primary btn-block" value="Entrar"  href="/" type="submit" >Iniciar sesión</button>
+      </form>
+    </div>
+  </body>
+</html>

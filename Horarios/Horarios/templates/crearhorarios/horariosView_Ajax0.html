@@ -1,0 +1,174 @@
+{% extends "base.html"%}
+
+{%block Script%}
+    <script>
+    function getParameterByName(name, url) {
+      if (!url) url = window.location.href;
+      name = name.replace(/[\[\]]/g, "\\$&");
+      var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+          results = regex.exec(url);
+      if (!results) return null;
+      if (!results[2]) return '';
+      return decodeURIComponent(results[2].replace(/\+/g, " "));
+    }
+    $(document).ready(function(){
+
+      console.log("working");
+      var query = getParameterByName('q');
+      console.log(query);
+      var nextDatoUrl;
+      var con = 0;
+
+      function attachDato(datosValue, prepend){
+        var horarioMateria = datosValue.Clase.Materia.Nombre
+        var horarioProfesorNombres = datosValue.Clase.Profesor.Nombres
+        var horarioProfesorApellidos = datosValue.Clase.Profesor.Apellidos
+        var horarioClaseID = datosValue.id
+          if (prepend==true){
+            $("#ajax_libros").prepend(
+              "<div class='card-deck'>"+
+               "<div class='card'>"+
+                 "<img class='card-img-top' src='...' alt=''>"+
+                 "<div class='card-block'>"+
+                 "<h4 class='card-title'>Materia: "+ horarioMateria +" </h4>"+
+                 "<p class='card-text'>Profesor: "+ horarioProfesorNombres +" "+ horarioProfesorApellidos + " </p>"+
+                 "</div>"+
+                 "<div class='card-footer'>"+
+                   "<a href='/horario/"+horarioClaseID+"/delete'>  Eliminar</a> "+
+                 "</div>"+
+               "</div>"+
+             "</div>"+
+             "<br>"
+            )
+
+          }else{
+            $("#ajax_datos").append(
+              "<div class='card-deck'>"+
+               "<div class='card'>"+
+                 "<img class='card-img-top' src='...' alt=''>"+
+                 "<div class='card-block'>"+
+                 "<h4 class='card-title'>Materia: "+ horarioMateria +" </h4>"+
+                 "<p class='card-text'>Profesor: "+ horarioProfesorNombres +" "+ horarioProfesorApellidos + " </p>"+
+                 "</div>"+
+                 "<div class='card-footer'>"+
+                   "<a href='/horario/"+horarioClaseID+"/delete'>  Eliminar</a> "+
+                 "</div>"+
+               "</div>"+
+             "</div>"+
+             "<br>"
+            )
+          }
+        }
+
+        function fetchDatos(url){
+          console.log("fetching...");
+          var fetchUrl;
+          if (!url){
+            fetchUrl='/api/horarios/?q=somequery';
+          }else{
+            fetchUrl=url
+          }
+          $.ajax({
+            url: fetchUrl,
+            data:{
+              'q': query
+            },
+            method: "GET",
+            success: function(data){
+              console.log(data);
+              nextDatoUrl = data.next;
+              $.each(data.results, function(key, value){
+                var datosKey = key;
+                attachDato(value);
+              });
+            },
+            error: function(data){
+              console.log("error");
+              console.log(data);
+            }
+          });
+        }
+
+        fetchDatos();
+
+        $("#loadmore").click(function(event){
+          event.preventDefault();
+          console.log("click me")
+          if (nextDatoUrl){
+            fetchDatos(nextDatoUrl);
+          }
+          // Cargar mas tweets
+        })
+
+        $("#libro-form").submit(function(event){
+         event.preventDefault();
+         var this_ = $(this);
+         console.log(event);
+         console.log(this_.serialize());
+         var formData = this_.serialize();
+
+           $.ajax({
+             url: "/api/horarios/create/",
+             data:formData,
+             method: "POST",
+             success: function(data){
+               this_.find("#id_content").val("");
+               attachLibro(data, true);
+             },
+             error: function(data){
+               console.log("error");
+               console.log("Datos:"+data);
+               console.log(data.statusText);
+               console.log(data.status);
+             }
+           });
+       })
+
+      });
+    </script>
+{% endblock %}
+
+{% block MateriaPost %}
+  <div class="">
+      {%include "form.html" with form=create_form action_url=create_url btn_title='Agregar' form_id='libro-form'%}
+  </div>
+{% endblock %}
+
+{% block Alumno %}
+
+  {% for i in object_list|slice:":1" %}
+  <table class="table" class="col">
+    <thead>
+      <tr>
+        <th>Matricula & Alumno</th>
+        <th>Especialidad</th>
+        <th>Correo</th>
+      </tr>
+    </thead>
+    <tbody>
+
+        <tr>
+          <td>{{i.Alumno}}</td>
+          <td>{{i.Alumno.Carrera}}</td>
+          <td>{{i.Alumno.Correo}}</td>
+        </tr>
+    </tbody>
+  </table>
+
+  {% endfor %}
+
+{% endblock %}
+
+{% block Horario %}
+  <div class="alert alert-info">
+    <h1>Horario</h1>
+    <div class="alert alert-success" class="post" id="ajax_datos">
+      <hr>
+    </div>
+    <hr>
+  </div>
+
+  <div class="alert alert-danger">
+    <a class="btn btn-success" href="#" id='loadmore'>Pendiente</a>
+  </div>
+{% endblock %}

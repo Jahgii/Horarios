@@ -25,4 +25,4 @@ class HorarioListAPIView(generics.ListAPIView):
                             Q(Alumno__Matricula__icontains=query)|
                             Q(Clase__IDClase__icontains=query)
                           )
-        return qs
+        return qs.filter(Alumno__user=self.request.user)

@@ -1,0 +1,15 @@
+{% extends "base.html"%}
+{% load static %}
+
+{% block Alumno %}
+<header class="masthead">
+  <div class="container">
+      <form class="" action="" method="post">{% csrf_token %}
+        <p>Estas seguro que quieres eliminar "{{object}}""  ?</p>
+        <input type="submit" name="" value="Confirmar">
+        <input type="submit" name="" href="/tamales/lista/" value="CANCELAR">
+      </form>
+      <br></br>
+    </div>
+</header>
+{% endblock %}
